@@ -138,7 +138,6 @@ client.on(SpeechEvents.speech, (message) => {
 
         if(channel) channel.send(`**${message.member.displayName}**: ${message.content}`);
     }
-    console.log(client.commands)
 
     //If message is a command
     client.commands.forEach(command => {
