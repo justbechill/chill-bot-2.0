@@ -6,8 +6,11 @@ module.exports = {
         .setName('say')
         .setDescription('Repeats whatever you say')
         .addStringOption(option => 
-            option.setName('message').setDescription('The message to repeat').setRequired(true)),
+            option.setName('message')
+            .setDescription('The message to repeat')
+            .setRequired(true)),
     async execute(client, interaction) {
+
         await interaction.reply({
             content: 'Test',
             ephemeral: true

@@ -41,7 +41,7 @@ module.exports = {
             commandEmbed.setTitle('Slash Commands');
             commandEmbed.setDescription('Slash commands are integrated with dicord using the `/` prefix.');
             folder = 'slash';
-        } else if(category == 'auto reply') {
+        } else if(category == 'auto reply' || category == 'autoreply' || category == 'auto-reply') {
             commandEmbed.setTitle('Auto Reply Commands');
             commandEmbed.setDescription('Auto reply commands are triggered by a specific message or word without a prefix.');
             folder = 'auto-reply';
@@ -55,9 +55,9 @@ module.exports = {
         }
 
         //Add all commands in the specified folder to the embed
-        for (const command of client.commands) {
-            if(command[1].folder == folder) commandEmbed.addFields({ name: command[1].data.name, value: command[1].data.description, inline: false })
-        } 
+        client.commands.every(command => {
+            if(command.folder == folder) commandEmbed.addFields({ name: command.data.name, value: command.data.description, inline: false })
+        });
 
         await interaction.reply({ embeds: [commandEmbed] });
     }

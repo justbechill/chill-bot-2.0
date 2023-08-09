@@ -13,7 +13,9 @@
   "author": "JustBeChill",
   "license": "ISC",
   "dependencies": {
+    "discord-speech-recognition": "^3.4.1",
     "discord.js": "^14.12.1",
-    "dotenv": "^16.3.1"
+    "dotenv": "^16.3.1",
+    "libsodium-wrappers": "^0.7.11"
   }
 }
