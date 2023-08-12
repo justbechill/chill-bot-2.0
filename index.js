@@ -112,6 +112,12 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.MessageCreate, async message => {
     if(message.author.bot) return;
 
+    const channels = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+
+    if(channels[message.guild.id] && channels[message.guild.id].channels.counting) {
+        client.commands.get('counting').execute(client, message);
+    }
+
     //If message is a command
     client.commands.forEach(command => {
         if(command.folder == 'auto-reply') {
@@ -131,10 +137,10 @@ client.on(Events.MessageCreate, async message => {
 client.on(SpeechEvents.speech, (message) => {
     if(!message.content || message.author.bot) return;
 
-    const channels = JSON.parse(fs.readFileSync('./channels.json', 'utf8'));
+    const channels = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
 
-    if(channels[message.guild.id] && channels[message.guild.id].transcript) {
-        const channel = message.guild.channels.cache.get(channels[message.guild.id].transcript);
+    if(channels[message.guild.id] && channels[message.guild.id].channels.transcript) {
+        const channel = message.guild.channels.cache.get(channels[message.guild.id].channels.transcript);
 
         if(channel) channel.send(`**${message.member.displayName}**: ${message.content}`);
     }

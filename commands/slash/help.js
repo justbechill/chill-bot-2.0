@@ -39,7 +39,7 @@ module.exports = {
         //Set specified category
         if(category == 'slash') {
             commandEmbed.setTitle('Slash Commands');
-            commandEmbed.setDescription('Slash commands are integrated with dicord using the `/` prefix.');
+            commandEmbed.setDescription('Slash commands are integrated with dicord and activated using the `/` prefix.');
             folder = 'slash';
         } else if(category == 'auto reply' || category == 'autoreply' || category == 'auto-reply') {
             commandEmbed.setTitle('Auto Reply Commands');
@@ -55,7 +55,7 @@ module.exports = {
         }
 
         //Add all commands in the specified folder to the embed
-        client.commands.every(command => {
+        client.commands.forEach(command => {
             if(command.folder == folder) commandEmbed.addFields({ name: command.data.name, value: command.data.description, inline: false })
         });
 

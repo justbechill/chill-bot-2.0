@@ -24,12 +24,14 @@ module.exports = {
             }
         }
 
-        joinVoiceChannel({
+        let connection = joinVoiceChannel({
             channelId: voiceChannel.id,
             guildId: voiceChannel.guild.id,
             adapterCreator: voiceChannel.guild.voiceAdapterCreator,
             selfDeaf: false
         });
+
+        client.connection = connection;
 
         await interaction.reply(`Joined ${voiceChannel}`);
     }
