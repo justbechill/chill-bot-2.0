@@ -7,8 +7,16 @@
             "counting": "937929319253168218"
         },
         "count": {
-            "num": 0,
-            "last": "141991457090306048"
+            "num": 1,
+            "last": "464864064749961229"
+        },
+        "commands": {
+            "kys chat": true,
+            "jinx": true
+        },
+        "permissions": {
+            "level": "everyone",
+            "bitflag": "SendMessages"
         }
     },
     "909664611937169489": {
@@ -21,6 +29,7 @@
         "count": {
             "num": 3,
             "last": "464864064749961229"
-        }
+        },
+        "commands": {}
     }
 }

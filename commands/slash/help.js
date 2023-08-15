@@ -7,8 +7,13 @@ module.exports = {
         .setDescription('Lists all slash commands and their descriptions')
         .addStringOption(option =>
             option.setName('category')
-            .setDescription('Type in the name of a different category to see its commands (slash, auto reply, and voice)')
-            .setRequired(false)),
+            .setDescription('Type in the name of a different category to see its commands.')
+            .setRequired(false)
+            .addChoices(
+                { name: 'Slash', value: 'slash' },
+                { name: 'Auto Reply', value: 'auto reply' },
+                { name: 'Voice', value: 'voice' }
+            )),
             
     async execute(client, interaction) {
 

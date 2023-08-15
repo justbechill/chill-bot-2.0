@@ -10,7 +10,8 @@ module.exports = {
         .addChannelOption(option => 
             option.setName('channel')
             .setDescription('The voice channel to join.')
-            .setRequired(false)),
+            .setRequired(false)
+            .addChannelTypes(Discord.ChannelType.GuildVoice)),
 
     async execute(client, interaction) {
         let voiceChannel = interaction.member?.voice.channel;
@@ -19,7 +20,7 @@ module.exports = {
             if(interaction.options.getChannel('channel') && interaction.options.getChannel('channel').type == '2') {
                 voiceChannel = interaction.options.getChannel('channel')
             } else {
-                await interaction.reply({ text: "You need to be either in a voice channel or specify a voice channel to join.", ephemeral: true});
+                await interaction.reply({ content: "You need to be either in a voice channel or specify a voice channel to join.", ephemeral: true});
                 return;
             }
         }

@@ -1,11 +1,21 @@
 //Require packages
 require('dotenv').config();
 
-const { Client, Events, GatewayIntentBits, Collection, REST, Routes } = require('discord.js');
-const { joinVoiceChannel, createAudioPlayer, createAudioResource } = require('@discordjs/voice');
+const { Client, Events, GatewayIntentBits, Collection, REST, Routes, ActivityType } = require('discord.js');
 const { addSpeechEvent, SpeechEvents } = require('discord-speech-recognition')
 const fs = require('node:fs');
 const path = require('node:path');
+
+const activities = [
+    { text: "Outer Wilds", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/753640/Outer_Wilds/' },
+    { text: "Garden State", type: ActivityType.Watching, url: 'https://www.amazon.com/gp/video/detail/B000I9X6Q8/ref=msx_wn_av' },
+    { text: "Weathering With You", type: ActivityType.Watching, url: 'https://play.max.com/movie/87cba30c-2349-4276-95c1-011ade9eaff3' },
+    { text: "A Silent Voice", type: ActivityType.Watching, url: 'https://www.amazon.com/Silent-Voice-English-Language-Version/dp/B08DRR9BCB/ref=sr_1_1?crid=A8QKH51CR63Q&keywords=a+silent+voice&qid=1692128579&s=instant-video&sprefix=a+silent+voice%2Cinstant-video%2C208&sr=1-1' },
+    { text: "Great Pretender", type: ActivityType.Watching, url: 'https://www.netflix.com/title/81220435' },
+    { text: "The Beginner's Guide", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/303210/The_Beginners_Guide/' },
+    { text: "Gris", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/683320/GRIS/' },
+    { text: "Half-Life: Alyx", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/546560/HalfLife_Alyx/' },
+];
 
 //Create a new client
 const client = new Client({ intents: [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent] });
@@ -19,6 +29,10 @@ client.once(Events.ClientReady, c => {
     client.guilds.fetch('824101797160419348')
         .then(guild => guild.members.fetch('464864064749961229')
         .then(member => client.me = member.user))
+
+    activity = activities[Math.floor(Math.random() * activities.length)]
+
+    client.user.setPresence({ activities: [{ name: activity.text, type: activity.type, url: activity.url }], status: 'online' });
 
     client.setMaxListeners(0)
 })
@@ -37,7 +51,7 @@ for(const folder of commandFolders) {
     const commandFiles = fs.readdirSync(commandsPath).filter(file => file.endsWith('.js'));
 
     console.log("\x1b[1m");
-    console.log(`\x1b[32mLOADING ${folder} COMMANDS\x1b[0m`);
+    console.log(`\x1b[32mLOADING ${folder.toUpperCase()} COMMANDS\x1b[0m`);
 
     commandsLoaded = 0;
 
@@ -95,6 +109,11 @@ client.on(Events.InteractionCreate, async interaction => {
     const command = client.commands.get(interaction.commandName);
     if(!command) return;
 
+    if(!commandIsEnabled(interaction.guild, interaction.commandName)) {
+        await interaction.reply({ content: 'This command is disabled for this server.', ephemeral: true });
+        return;
+    }
+
     try {
 		await command.execute(client, interaction);
 	} catch (error) {
@@ -126,7 +145,12 @@ client.on(Events.MessageCreate, async message => {
             for(const term of command.data.terms) {
                 
                 //run command
-                if(message.content.toLowerCase().includes(term)) command.execute(client, message);
+                if(message.content.toLowerCase().includes(term)) {
+
+                    if(!commandIsEnabled(message.guild, command.data.name)) return;
+
+                    command.execute(client, message);
+                }
             }
         }
     });
@@ -137,9 +161,9 @@ client.on(Events.MessageCreate, async message => {
 client.on(SpeechEvents.speech, (message) => {
     if(!message.content || message.author.bot) return;
 
-    const channels = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+    const servers = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
 
-    if(channels[message.guild.id] && channels[message.guild.id].channels.transcript) {
+    if(servers[message.guild.id] && servers[message.guild.id].servers.transcript) {
         const channel = message.guild.channels.cache.get(channels[message.guild.id].channels.transcript);
 
         if(channel) channel.send(`**${message.member.displayName}**: ${message.content}`);
@@ -151,14 +175,28 @@ client.on(SpeechEvents.speech, (message) => {
 
             //check if one of terms is in message
             for(const term of command.data.terms) {
-                
+
                 //run command
-                if(message.content.toLowerCase().includes(term)) command.execute(client, message, term);
+                if(message.content.toLowerCase().includes(term)) {
+                    if(!commandIsEnabled(message.guild, command.data.name)) return;
+
+                    command.execute(client, message, term);
+                }
             }
         }
     });
 });
 
+
+function commandIsEnabled(guild, command) {
+    const servers = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+
+    if(!servers[guild.id]) return false;
+
+    if(servers[guild.id].commands[command] == undefined || servers[guild.id].commands[command] == true) return true;
+
+    return false;
+}
 
 //Log in with token, keep at end of file
 client.login(process.env.TOKEN)
