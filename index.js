@@ -17,12 +17,46 @@ const activities = [
     { text: "Half-Life: Alyx", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/546560/HalfLife_Alyx/' },
 ];
 
+const baseServerConfig = {
+    channels: {
+        transcript: null,
+        log: null,
+        message: null,
+        counting: null
+    },
+    commands: {},
+    count: {},
+    permissions: {}
+}
+
+const serverJoinMessage = "**Thanks for inviting Chill Bot to your server!**\n\n__*A few things you might want to know:*__\n1. To enable features like counting, voice transcripts, and logs you need to use `/config channel`.  \n2. By default, only Admins are allowed to configure the bot settings. You can change this with `/config permissions`.\n3. Some commands are inside jokes or maybe even just annoying, so you can enable or disable any command with `/config command`.\n4. The voice recognition can be pretty inaccurate sometimes. If you're having problems triggering commands, you can use `/suggest` to notify JustBeChill.\n5. If you need help or have any questions, you can message `justbechill` to ask about it.\n\n**That's all! Enjoy Chill Bot!**";
+
 //Create a new client
 const client = new Client({ intents: [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent] });
 addSpeechEvent(client)
 
 //When client is ready
 client.once(Events.ClientReady, c => {
+
+    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+    console.log(`\x1b[32mLOADING SERVERS\x1b[0m`);
+
+    let count = 0;
+
+    //LOAD SERVERS
+    client.guilds.cache.forEach((guild, index) => {
+        if(!config[guild.id]) {
+            config[guild.id] = baseServerConfig;
+        }
+    
+        count++;
+        console.log(guild.name)
+    });
+    
+    fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
+    console.log(`Loaded ${count} servers\n`)
+
+
     console.log("Heyo! Server up since")
     console.log(new Date().toLocaleString())
 
@@ -84,7 +118,6 @@ for(const folder of commandFolders) {
 }
 
 
-
 //Loading slash commands
 const rest = new REST().setToken(process.env.TOKEN);
 
@@ -100,7 +133,28 @@ const rest = new REST().setToken(process.env.TOKEN);
     }
 })();
 
+//When bot joins a server
+client.on(Events.GuildCreate, guild => {
+    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
+    if(!config[guild.id]) {
+        config[guild.id] = baseServerConfig;
+    }
+
+    fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
+
+    let channel = null;
+
+    guild.channels.cache.forEach(c => {
+            if(c.type == 0) {
+                channel = c;
+                return;
+            }
+    });
+
+    if(channel) channel.send(serverJoinMessage);
+    console.log(`Joined ${guild.name}`)
+});
 
 //When slash command is used
 client.on(Events.InteractionCreate, async interaction => {
@@ -131,9 +185,9 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.MessageCreate, async message => {
     if(message.author.bot) return;
 
-    const channels = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
-    if(channels[message.guild.id] && channels[message.guild.id].channels.counting) {
+    if(config[message.guild.id] && config[message.guild.id].channels.counting) {
         client.commands.get('counting').execute(client, message);
     }
 
@@ -161,12 +215,12 @@ client.on(Events.MessageCreate, async message => {
 client.on(SpeechEvents.speech, (message) => {
     if(!message.content || message.author.bot) return;
 
-    const servers = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
-    if(servers[message.guild.id] && servers[message.guild.id].servers.transcript) {
-        const channel = message.guild.channels.cache.get(channels[message.guild.id].channels.transcript);
+    if(config[message.guild.id] && config[message.guild.id].servers.transcript) {
+        const config = message.guild.channels.cache.get(config[message.guild.id].channels.transcript);
 
-        if(channel) channel.send(`**${message.member.displayName}**: ${message.content}`);
+        if(config) channel.send(`**${message.member.displayName}**: ${message.content}`);
     }
 
     //If message is a command
@@ -189,11 +243,11 @@ client.on(SpeechEvents.speech, (message) => {
 
 
 function commandIsEnabled(guild, command) {
-    const servers = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
-    if(!servers[guild.id]) return false;
+    if(!config[guild.id]) return false;
 
-    if(servers[guild.id].commands[command] == undefined || servers[guild.id].commands[command] == true) return true;
+    if(config[guild.id].commands[command] == undefined || config[guild.id].commands[command] == true) return true;
 
     return false;
 }

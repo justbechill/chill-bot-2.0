@@ -12,7 +12,7 @@ module.exports = {
     async execute(client, message, term) {
         const msg = message.content.toLowerCase().split(term)
 
-        const channels = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+        const channels = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
         if(channels[message.guild.id] && channels[message.guild.id].channels.message) {
             const channel = message.guild.channels.cache.get(channels[message.guild.id].message);

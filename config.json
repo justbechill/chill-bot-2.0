@@ -1,0 +1,43 @@
+{
+    "909664611937169489": {
+        "channels": {
+            "transcript": "1138929965723816006",
+            "log": null,
+            "message": "909664612436295702",
+            "counting": "937946329135579179"
+        },
+        "count": {
+            "num": 3,
+            "last": "464864064749961229"
+        },
+        "commands": {}
+    },
+    "775797660488564757": {
+        "channels": {
+            "transcript": null,
+            "log": null,
+            "message": null,
+            "counting": null
+        },
+        "commands": {},
+        "count": {},
+        "permissions": {}
+    },
+    "824101797160419348": {
+        "channels": {
+            "transcript": "1138926771039899709",
+            "log": null,
+            "message": "824101797160419351",
+            "counting": "937929319253168218"
+        },
+        "commands": {},
+        "count": {
+            "num": 1,
+            "last": "464864064749961229"
+        },
+        "permissions": {
+            "level": "everyone",
+            "bitflag": "SendMessages"
+        }
+    }
+}

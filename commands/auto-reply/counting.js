@@ -10,21 +10,16 @@ module.exports = {
     },
 
     async execute(client, message) {
-        const servers = JSON.parse(fs.readFileSync('./servers.json', 'utf8'));
+        const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
-        if(!servers[message.guild.id] || !servers[message.guild.id].channels.counting) return;
+        if(!config[message.guild.id] || !config[message.guild.id].channels.counting) return;
 
-        let count = servers[message.guild.id].count;
-        const channel = message.guild.channels.cache.get(servers[message.guild.id].channels.counting);
+        let count = config[message.guild.id].count;
+        const channel = message.guild.channels.cache.get(config[message.guild.id].channels.counting);
 
         if(!channel || channel.id != message.channel.id) return;
 
-        if(!count) {
-            count = {
-                num: 0,
-                last: ''
-            }
-        }
+        if(!count.num) count.num = 0;
 
         if(!isNaN(parseInt(message.content))) {
             if(parseInt(message.content) == count.num + 1) {
@@ -52,8 +47,8 @@ module.exports = {
             }
 
             count.last = message.author.id;
-            servers[message.guild.id].count = count;
-            fs.writeFileSync('./servers.json', JSON.stringify(servers, null, 4));
+            config[message.guild.id].count = count;
+            fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
         }
 
 

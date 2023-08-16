@@ -58,67 +58,53 @@ module.exports = {
         
     async execute(client, interaction) {
 
-        obj = JSON.parse(fs.readFileSync(path.resolve('./servers.json')));
+        let config = JSON.parse(fs.readFileSync(path.resolve('./config.json')));
 
-        const bitflag = obj[interaction.guild.id].permissions.bitflag ? PermissionsBitField.Flags[obj[interaction.guild.id].permissions.bitflag] : PermissionsBitField.Flags.Administrator;
+        const bitflag = config[interaction.guild.id].permissions.bitflag ? PermissionsBitField.Flags[config[interaction.guild.id].permissions.bitflag] : PermissionsBitField.Flags.Administrator;
 
         if(!interaction.member.permissions.has(bitflag)) {
-            interaction.reply({ content: `You need to be a(n) \`${obj[interaction.guild.id].permissions.level.toUpperCase()}\` to use this command.`, ephemeral: true });
+            interaction.reply({ content: `You need to be a(n) \`${config[interaction.guild.id].permissions.level.toUpperCase()}\` to use this command.`, ephemeral: true });
 
             return;
         }
 
         if(interaction.options.getSubcommand() == 'channel') {
-			channel(client, interaction, obj);
+			channel(client, interaction, config);
 		} else if(interaction.options.getSubcommand() == 'command') {
-			command(client, interaction, obj);
+			command(client, interaction, config);
 		} else if(interaction.options.getSubcommand() == 'permissions') {
-            permissions(client, interaction, obj);
+            permissions(client, interaction, config);
         }
     }
 }
 
-function channel(client, interaction, obj) {
-
-    if(!obj[interaction.guild.id]) {
-        obj[interaction.guild.id] = {
-            channels: {
-                transcript: null,
-                log: null,
-                message: null,
-                counting: null
-            },
-            permissions: {
-                
-            }
-        }
-    }
+function channel(client, interaction, config) {
 
     const type = interaction.options.getString('type').toLowerCase();
     const channel = interaction.options.getChannel('channel');
 
     if(type == 'transcript') {
-        obj[interaction.guild.id].channels.transcript = channel.id;
+        config[interaction.guild.id].channels.transcript = channel.id;
     } else if(type == 'message') {
-        obj[interaction.guild.id].channels.message = channel.id;
+        config[interaction.guild.id].channels.message = channel.id;
     } else if(type == 'counting') {
-        obj[interaction.guild.id].channels.counting = channel.id;
+        config[interaction.guild.id].channels.counting = channel.id;
     } else {
         interaction.reply({content: 'There was a problem setting the channel.', ephemeral: true});
         return;
     }
 
-    fs.writeFileSync(path.resolve('./servers.json'), JSON.stringify(obj, null, 4));
+    fs.writeFileSync(path.resolve('./config.json'), JSON.stringify(config, null, 4));
     interaction.reply(`Set ${type} channel to ${channel}`);
 }
 
-function command(client, interaction, obj) {
+function command(client, interaction, config) {
 
 	command = interaction.options.getString('command');
 	enable = interaction.options.getBoolean('enable');
 
-	if(!obj[interaction.guild.id]) {
-        obj[interaction.guild.id] = {
+	if(!config[interaction.guild.id]) {
+        config[interaction.guild.id] = {
             channels: {
                 transcript: null,
                 log: null,
@@ -132,8 +118,8 @@ function command(client, interaction, obj) {
 	}
 
 	if(client.commands.has(command)) {
-		obj[interaction.guild.id].commands[command] = enable;
-		fs.writeFileSync(path.resolve('./servers.json'), JSON.stringify(obj, null, 4));
+		config[interaction.guild.id].commands[command] = enable;
+		fs.writeFileSync(path.resolve('./config.json'), JSON.stringify(config, null, 4));
 
 		interaction.reply(`Set \`${command}\` to ${enable}`);
 	} else {
@@ -141,26 +127,9 @@ function command(client, interaction, obj) {
 	}
 }
 
-function permissions(client, interaction, obj) {
+function permissions(client, interaction, config) {
 
     perm = interaction.options.getString('permission');
-
-    if(!obj[interaction.guild.id]) {
-        obj[interaction.guild.id] = {
-            channels: {
-                transcript: null,
-                log: null,
-                message: null,
-                counting: null
-            },
-			commands: {
-
-			},
-            permissions: {
-
-            }
-        }
-	}
 
     let bitflag = null;
 
@@ -173,12 +142,12 @@ function permissions(client, interaction, obj) {
         bitflag = "Administrator"
     }
 
-    obj[interaction.guild.id].permissions = {
+    config[interaction.guild.id].permissions = {
         level: perm,
         bitflag: bitflag
     }
     
-    fs.writeFileSync(path.resolve('./servers.json'), JSON.stringify(obj, null, 4));
+    fs.writeFileSync(path.resolve('./config.json'), JSON.stringify(config, null, 4));
 
     interaction.reply(`Set required permission level to \`${perm.toUpperCase()}\``);
 }
