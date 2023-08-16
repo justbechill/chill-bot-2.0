@@ -19,9 +19,6 @@
     "dotenv": "^16.3.1",
     "ffmpeg-static": "^5.1.0",
     "isomorphic-unfetch": "^4.0.2",
-    "libsodium-wrappers": "^0.7.11",
-    "usetube": "^2.2.7",
-    "youtube-search-without-api-key": "^1.1.0",
-    "ytdl-core": "^4.11.5"
+    "libsodium-wrappers": "^0.7.11"
   }
 }
