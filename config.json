@@ -10,7 +10,8 @@
             "num": 3,
             "last": "464864064749961229"
         },
-        "commands": {}
+        "commands": {},
+        "permissions": {}
     },
     "775797660488564757": {
         "channels": {
@@ -39,5 +40,29 @@
             "level": "everyone",
             "bitflag": "SendMessages"
         }
+    },
+    "708891635961954358": {
+        "channels": {
+            "transcript": "1141480309041397930",
+            "log": null,
+            "message": null,
+            "counting": null
+        },
+        "commands": {
+            "kys chat": false
+        },
+        "count": {},
+        "permissions": {}
+    },
+    "1024834642248994887": {
+        "channels": {
+            "transcript": null,
+            "log": null,
+            "message": null,
+            "counting": null
+        },
+        "commands": {},
+        "count": {},
+        "permissions": {}
     }
 }

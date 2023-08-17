@@ -103,20 +103,6 @@ function command(client, interaction, config) {
 	command = interaction.options.getString('command');
 	enable = interaction.options.getBoolean('enable');
 
-	if(!config[interaction.guild.id]) {
-        config[interaction.guild.id] = {
-            channels: {
-                transcript: null,
-                log: null,
-                message: null,
-                counting: null
-            },
-            permissions: {
-                
-            }
-        }
-	}
-
 	if(client.commands.has(command)) {
 		config[interaction.guild.id].commands[command] = enable;
 		fs.writeFileSync(path.resolve('./config.json'), JSON.stringify(config, null, 4));

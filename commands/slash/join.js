@@ -32,7 +32,7 @@ module.exports = {
             selfDeaf: false
         });
 
-        client.connection = connection;
+        client.connections[interaction.guild.id] = connection;
 
         await interaction.reply(`Joined ${voiceChannel}`);
     }

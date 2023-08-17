@@ -6,17 +6,20 @@ const { addSpeechEvent, SpeechEvents } = require('discord-speech-recognition')
 const fs = require('node:fs');
 const path = require('node:path');
 
+//List of possible activities that will be selected randomly
 const activities = [
-    { text: "Outer Wilds", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/753640/Outer_Wilds/' },
-    { text: "Garden State", type: ActivityType.Watching, url: 'https://www.amazon.com/gp/video/detail/B000I9X6Q8/ref=msx_wn_av' },
-    { text: "Weathering With You", type: ActivityType.Watching, url: 'https://play.max.com/movie/87cba30c-2349-4276-95c1-011ade9eaff3' },
-    { text: "A Silent Voice", type: ActivityType.Watching, url: 'https://www.amazon.com/Silent-Voice-English-Language-Version/dp/B08DRR9BCB/ref=sr_1_1?crid=A8QKH51CR63Q&keywords=a+silent+voice&qid=1692128579&s=instant-video&sprefix=a+silent+voice%2Cinstant-video%2C208&sr=1-1' },
-    { text: "Great Pretender", type: ActivityType.Watching, url: 'https://www.netflix.com/title/81220435' },
-    { text: "The Beginner's Guide", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/303210/The_Beginners_Guide/' },
-    { text: "Gris", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/683320/GRIS/' },
-    { text: "Half-Life: Alyx", type: ActivityType.Playing, url: 'https://store.steampowered.com/app/546560/HalfLife_Alyx/' },
+    { text: "Outer Wilds", type: ActivityType.Playing },
+    { text: "Garden State", type: ActivityType.Watching },
+    { text: "Weathering With You", type: ActivityType.Watching },
+    { text: "A Silent Voice", type: ActivityType.Watching },
+    { text: "Great Pretender", type: ActivityType.Watching },
+    { text: "The Beginner's Guide", type: ActivityType.Playing },
+    { text: "Gris", type: ActivityType.Playing },
+    { text: "Half-Life: Alyx", type: ActivityType.Playing },
 ];
 
+
+//Base options for server config, used when a new server is added
 const baseServerConfig = {
     channels: {
         transcript: null,
@@ -29,28 +32,39 @@ const baseServerConfig = {
     permissions: {}
 }
 
+//Message sent when bot joins a server
 const serverJoinMessage = "**Thanks for inviting Chill Bot to your server!**\n\n__*A few things you might want to know:*__\n1. To enable features like counting, voice transcripts, and logs you need to use `/config channel`.  \n2. By default, only Admins are allowed to configure the bot settings. You can change this with `/config permissions`.\n3. Some commands are inside jokes or maybe even just annoying, so you can enable or disable any command with `/config command`.\n4. The voice recognition can be pretty inaccurate sometimes. If you're having problems triggering commands, you can use `/suggest` to notify JustBeChill.\n5. If you need help or have any questions, you can message `justbechill` to ask about it.\n\n**That's all! Enjoy Chill Bot!**";
 
 //Create a new client
 const client = new Client({ intents: [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent] });
 addSpeechEvent(client)
 
-//When client is ready
+//========================
+//RUNS WHEN BOT IS READY
+//========================
 client.once(Events.ClientReady, c => {
+
+    //Create connections object
+    client.connections = {};
 
     const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
     console.log(`\x1b[32mLOADING SERVERS\x1b[0m`);
 
     let count = 0;
 
-    //LOAD SERVERS
-    client.guilds.cache.forEach((guild, index) => {
+    //Load servers and check that config is updated
+    client.guilds.cache.forEach( guild => {
         if(!config[guild.id]) {
             config[guild.id] = baseServerConfig;
         }
+
+        Object.keys(baseServerConfig).forEach(key => {
+            if(!config[guild.id][key]) {
+                config[guild.id][key] = baseServerConfig[key];
+            }
+        });
     
         count++;
-        console.log(guild.name)
     });
     
     fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
@@ -217,10 +231,10 @@ client.on(SpeechEvents.speech, (message) => {
 
     const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
-    if(config[message.guild.id] && config[message.guild.id].servers.transcript) {
-        const config = message.guild.channels.cache.get(config[message.guild.id].channels.transcript);
+    if(config[message.guild.id] && config[message.guild.id].channels.transcript) {
+        const channel = message.guild.channels.cache.get(config[message.guild.id].channels.transcript);
 
-        if(config) channel.send(`**${message.member.displayName}**: ${message.content}`);
+        if(channel) channel.send(`**${message.member.displayName}**: ${message.content}`);
     }
 
     //If message is a command

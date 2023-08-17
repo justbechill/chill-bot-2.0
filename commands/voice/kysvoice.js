@@ -6,7 +6,7 @@ module.exports = {
     data: {
         name: 'kys voice',
         description: 'Yo... I usually respect you here.',
-        terms: ['kys', 'kill yourself', 'keep yourself safe', 'ays', 'eat yourself safe']
+        terms: [' kys ', 'kill yourself', 'keep yourself safe', ' ays ', 'eat yourself safe']
     },
 
     async execute(client, message) {
@@ -15,7 +15,7 @@ module.exports = {
 
         
         player.play(resource)
-        client.connection.subscribe(player);
+        client.connections[message.guild.id].subscribe(player);
     }
     
 }
