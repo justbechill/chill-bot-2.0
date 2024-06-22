@@ -1,24 +1,23 @@
 {
   "name": "chill-bot-2.0",
   "version": "1.0.0",
-  "description": "New and improved chill bot!",
+  "description": "New and improved Chill Bot!",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
-    "url": "Chill-Bot-2.0"
+    "url": "git+https://github.com/JustBeChill/chill-bot-2.0.git"
   },
   "author": "JustBeChill",
   "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/JustBeChill/chill-bot-2.0/issues"
+  },
+  "homepage": "https://github.com/JustBeChill/chill-bot-2.0#readme",
   "dependencies": {
-    "discord-music-player": "^9.1.1",
-    "discord-speech-recognition": "^3.4.1",
-    "discord.js": "^14.12.1",
-    "dotenv": "^16.3.1",
-    "ffmpeg-static": "^5.1.0",
-    "isomorphic-unfetch": "^4.0.2",
-    "libsodium-wrappers": "^0.7.11"
+    "discord.js": "^14.15.3",
+    "dotenv": "^16.4.5"
   }
 }
