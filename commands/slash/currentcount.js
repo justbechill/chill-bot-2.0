@@ -10,7 +10,7 @@ module.exports = {
     async execute(client, interaction) {
         let config = JSON.parse(fs.readFileSync(path.resolve('./config.json')));
 
-        if(!config[interaction.guild.id] || !config[interaction.guild.id].count) {
+        if(!config[interaction.guild.id] || !config[interaction.guild.id].count.num) {
             await interaction.reply({
                 content: 'This server does not have counting set up. To enable counting in a channel, use `/config channel',
                 ephemeral: true
