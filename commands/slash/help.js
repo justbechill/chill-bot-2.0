@@ -11,8 +11,7 @@ module.exports = {
             .setRequired(false)
             .addChoices(
                 { name: 'Slash', value: 'slash' },
-                { name: 'Auto Reply', value: 'auto reply' },
-                { name: 'Voice', value: 'voice' }
+                { name: 'Auto Reply', value: 'auto reply' }
             )),
             
     async execute(client, interaction) {
@@ -23,14 +22,13 @@ module.exports = {
         const categoryEmbed = new EmbedBuilder()
             .setColor("#039799")
             .setTitle('Category Help')
-            .setDescription('Use `/help` with the name of a category to see its commands (slash, auto reply, and voice).')
+            .setDescription('Use `/help` with the name of a category to see its commands (slash and auto reply).')
             .setURL('https://www.youtube.com/watch?v=dQw4w9WgXcQ')
             .setThumbnail(client.user.avatarURL())
             .setFooter({text: 'Made by JustBeChill'})
             .addFields(
                 { name: 'Slash', value: 'Slash commands are integrated with dicord using the `/` prefix.', inline: false },
-                { name: 'Auto Reply', value: 'Auto reply commands are triggered by a specific message or word without a prefix.', inline: false },
-                { name: 'Voice', value: 'Voice commands are triggered by a specific word or phrase during a voice call.', inline: false }
+                { name: 'Auto Reply', value: 'Auto reply commands are triggered by a specific message or word without a prefix.', inline: false }
             )
 
         //COMMAND HELP TEMPLATE
@@ -50,11 +48,7 @@ module.exports = {
             commandEmbed.setTitle('Auto Reply Commands');
             commandEmbed.setDescription('Auto reply commands are triggered by a specific message or word without a prefix.');
             folder = 'auto-reply';
-        } else if(category == 'voice') {
-            commandEmbed.setTitle('Voice Commands');
-            commandEmbed.setDescription('Voice commands are triggered by a specific word or phrase during a voice call.');
-            folder = 'voice';
-        } else {
+        }  else {
             await interaction.reply({ embeds: [categoryEmbed] });
             return;
         }

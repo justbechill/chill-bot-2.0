@@ -2,7 +2,6 @@
 require('dotenv').config();
 
 const { Client, Events, GatewayIntentBits, Collection, REST, Routes, ActivityType } = require('discord.js');
-const { addSpeechEvent, SpeechEvents } = require('discord-speech-recognition')
 const fs = require('node:fs');
 const path = require('node:path');
 
@@ -33,11 +32,10 @@ const baseServerConfig = {
 }
 
 //Message sent when bot joins a server
-const serverJoinMessage = "**Thanks for inviting Chill Bot to your server!**\n\n__*A few things you might want to know:*__\n1. To enable features like counting, voice transcripts, and logs you need to use `/config channel`.  \n2. By default, only Admins are allowed to configure the bot settings. You can change this with `/config permissions`.\n3. Some commands are inside jokes or maybe even just annoying, so you can enable or disable any command with `/config command`.\n4. The voice recognition can be pretty inaccurate sometimes. If you're having problems triggering commands, you can use `/suggest` to notify JustBeChill.\n5. If you need help or have any questions, you can message `justbechill` to ask about it.\n\n**That's all! Enjoy Chill Bot!**";
+const serverJoinMessage = "**Thanks for inviting Chill Bot to your server!**\n\n__*A few things you might want to know:*__\n1. To enable features like counting and logs you need to use `/config channel`.  \n2. By default, only Admins are allowed to configure the bot settings. You can change this with `/config permissions`.\n3. Some commands are inside jokes or maybe even just annoying, so you can enable or disable any command with `/config command`.\n4. The voice recognition can be pretty inaccurate sometimes. If you're having problems triggering commands, you can use `/suggest` to notify JustBeChill.\n5. If you need help or have any questions, you can message `justbechill` to ask about it.\n\n**That's all! Enjoy Chill Bot!**";
 
 //Create a new client
 const client = new Client({ intents: [GatewayIntentBits.AutoModerationConfiguration, GatewayIntentBits.AutoModerationExecution, GatewayIntentBits.DirectMessageReactions, GatewayIntentBits.DirectMessageTyping, GatewayIntentBits.DirectMessages, GatewayIntentBits.GuildEmojisAndStickers, GatewayIntentBits.GuildIntegrations, GatewayIntentBits.GuildInvites, GatewayIntentBits.GuildMembers, GatewayIntentBits.GuildMessageReactions, GatewayIntentBits.GuildMessageTyping, GatewayIntentBits.GuildMessages, GatewayIntentBits.GuildModeration, GatewayIntentBits.GuildPresences, GatewayIntentBits.GuildScheduledEvents, GatewayIntentBits.GuildVoiceStates, GatewayIntentBits.GuildWebhooks, GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent] });
-addSpeechEvent(client)
 
 //========================
 //RUNS WHEN BOT IS READY
@@ -91,7 +89,7 @@ client.once(Events.ClientReady, c => {
 client.commands = new Collection();
 slashCommands = [];
 
-const foldersPath = path.join(__dirname, 'Commands');
+const foldersPath = path.join(__dirname, 'commands');
 const commandFolders = fs.readdirSync(foldersPath);
 
 for(const folder of commandFolders) {
@@ -226,7 +224,7 @@ client.on(Events.MessageCreate, async message => {
 
 //When speech is detected
 //FOR VOICE COMMANDS
-client.on(SpeechEvents.speech, (message) => {
+/* client.on(SpeechEvents.speech, (message) => {
     if(!message.content || message.author.bot) return;
 
     const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
@@ -253,7 +251,7 @@ client.on(SpeechEvents.speech, (message) => {
             }
         }
     });
-});
+}); */
 
 
 function commandIsEnabled(guild, command) {

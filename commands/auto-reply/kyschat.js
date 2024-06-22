@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 
 module.exports = {
     data: {
-        name: 'kys chat',
+        name: 'kys',
         description: 'Yo... I usually respect you here.',
         terms: ['kys', 'kill yourself', 'keep yourself safe']
     },
