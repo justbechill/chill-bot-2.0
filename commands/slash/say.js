@@ -11,16 +11,16 @@ module.exports = {
             .setRequired(true)),
     async execute(client, interaction) {
 
-        await interaction.reply({
-            content: 'Test',
-            ephemeral: true
-        })
-
         let message = interaction.options.getString('message')
 
-        if(message.includes('@everyone') || message.content.includes('@here')) {
+        if(message.includes('@everyone') || message.includes('@here')) {
             message = `${interaction.member} tried to ping everyone. Asshole.`
         }
         interaction.channel.send(message);
+
+        await interaction.reply({
+            content: 'I cant just not reply to a message, so this is here :(',
+            ephemeral: true
+        })
     }
 }

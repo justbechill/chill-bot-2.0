@@ -4,6 +4,9 @@ require('dotenv').config();
 const { Client, Events, GatewayIntentBits, Collection, REST, Routes, ActivityType } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
+const moment = require('moment')
+
+let day = moment().day()
 
 //List of possible activities that will be selected randomly
 const activities = [
@@ -11,10 +14,10 @@ const activities = [
     { text: "Garden State", type: ActivityType.Watching },
     { text: "Weathering With You", type: ActivityType.Watching },
     { text: "A Silent Voice", type: ActivityType.Watching },
-    { text: "Great Pretender", type: ActivityType.Watching },
+    { text: "Good Will Hunting", type: ActivityType.Watching },
     { text: "The Beginner's Guide", type: ActivityType.Playing },
-    { text: "Gris", type: ActivityType.Playing },
-    { text: "Half-Life: Alyx", type: ActivityType.Playing },
+    { text: "Omori", type: ActivityType.Playing },
+    { text: "Elden Ring", type: ActivityType.Playing },
 ];
 
 
@@ -76,9 +79,7 @@ client.once(Events.ClientReady, c => {
         .then(guild => guild.members.fetch('464864064749961229')
         .then(member => client.me = member.user))
 
-    activity = activities[Math.floor(Math.random() * activities.length)]
-
-    client.user.setPresence({ activities: [{ name: activity.text, type: activity.type, url: activity.url }], status: 'online' });
+    changeStatus()
 
     client.setMaxListeners(0)
 })
@@ -220,6 +221,11 @@ client.on(Events.MessageCreate, async message => {
             }
         }
     });
+
+    if(moment().day() != day) {
+        changeStatus();
+        day = moment().day();
+    }
 });
 
 //When speech is detected
@@ -253,7 +259,21 @@ client.on(Events.MessageCreate, async message => {
     });
 }); */
 
+/**
+ * Updates the status to a random element of collection `activities`
+ */
+function changeStatus() {
+    activity = activities[Math.floor(Math.random() * activities.length)]
 
+    client.user.setPresence({ activities: [{ name: activity.text, type: activity.type, url: activity.url }], status: 'online' });
+}
+
+/**
+ * 
+ * @param { The id of the guild to be checked } guild 
+ * @param { the command name to be checked for } command 
+ * @returns true if the command is enabled or not specified, false if the command is disabled.
+ */
 function commandIsEnabled(guild, command) {
     const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
