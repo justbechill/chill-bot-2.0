@@ -69,8 +69,6 @@ module.exports = {
         }
         query += ` WHERE id = ${config.id}`;
 
-        console.log(query)
-
         try {
             await conn.query(query);
         } catch (err) {

@@ -217,9 +217,7 @@ function changeStatus() {
  * @returns true if the command is enabled or not specified, false if the command is disabled.
  */
 function commandIsEnabled(guild, command) {
-    /* const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-
-    if(!config[guild.id]) return false;
+    /* if(!config[guild.id]) return false;
 
     if(config[guild.id].commands[command] == undefined || config[guild.id].commands[command] == true) return true;
 

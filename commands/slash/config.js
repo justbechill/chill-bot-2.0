@@ -2,6 +2,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { ChannelType, PermissionFlagsBits, PermissionsBitField } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const database = require('../../database');
+const { config } = require('dotenv');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -15,9 +17,9 @@ module.exports = {
                 .setDescription('The type of channel')
                 .setRequired(true)
                 .addChoices(
-                    { name: 'Transcript', value: 'transcript' },
                     { name: 'Message', value: 'message' },
-                    { name: 'Counting', value: 'counting' }
+                    { name: 'Counting', value: 'counting' },
+                    { name: 'Log', value: 'log' }
                 )
             )
             .addChannelOption(option =>
@@ -58,12 +60,12 @@ module.exports = {
         
     async execute(client, interaction) {
 
-        let config = JSON.parse(fs.readFileSync(path.resolve('./config.json')));
+        let config = await database.getServer(interaction.guild.id);
 
-        const bitflag = config[interaction.guild.id].permissions.bitflag ? PermissionsBitField.Flags[config[interaction.guild.id].permissions.bitflag] : PermissionsBitField.Flags.Administrator;
+        const bitflag = config.requiredPermBitflag ? PermissionsBitField.Flags[config.requiredPermBitflag] : PermissionsBitField.Flags.Administrator;
 
         if(!interaction.member.permissions.has(bitflag)) {
-            interaction.reply({ content: `You need to be a(n) \`${config[interaction.guild.id].permissions.level.toUpperCase()}\` to use this command.`, ephemeral: true });
+            interaction.reply({ content: `You need to be a(n) \`${config.requiredPermLevel.toUpperCase()}\` to use this command.`, ephemeral: true });
 
             return;
         }
@@ -83,18 +85,18 @@ function channel(client, interaction, config) {
     const type = interaction.options.getString('type').toLowerCase();
     const channel = interaction.options.getChannel('channel');
 
-    if(type == 'transcript') {
-        config[interaction.guild.id].channels.transcript = channel.id;
-    } else if(type == 'message') {
-        config[interaction.guild.id].channels.message = channel.id;
+    if(type == 'message') {
+        config.messageChannel = channel.id;
     } else if(type == 'counting') {
-        config[interaction.guild.id].channels.counting = channel.id;
+        config.countingChannel = channel.id;
+    } else if(type == 'log') {
+        config.logChannel = channel.id;
     } else {
         interaction.reply({content: 'There was a problem setting the channel.', ephemeral: true});
         return;
     }
 
-    fs.writeFileSync(path.resolve('./config.json'), JSON.stringify(config, null, 4));
+    database.setServer(config);
     interaction.reply(`Set ${type} channel to ${channel}`);
 }
 
@@ -103,14 +105,14 @@ function command(client, interaction, config) {
 	command = interaction.options.getString('command');
 	enable = interaction.options.getBoolean('enable');
 
-	if(client.commands.has(command)) {
+	/* if(client.commands.has(command)) {
 		config[interaction.guild.id].commands[command] = enable;
 		fs.writeFileSync(path.resolve('./config.json'), JSON.stringify(config, null, 4));
 
 		interaction.reply(`Set \`${command}\` to ${enable}`);
 	} else {
 		interaction.reply({ content: "That command could not be found. You can find the correct name for a command using `/help`.", ephemeral: true });
-	}
+	} */
 }
 
 function permissions(client, interaction, config) {
@@ -128,12 +130,10 @@ function permissions(client, interaction, config) {
         bitflag = "Administrator"
     }
 
-    config[interaction.guild.id].permissions = {
-        level: perm,
-        bitflag: bitflag
-    }
+    config.requiredPermlevel = perm;
+    config.requiredPermBitflag = bitflag;
     
-    fs.writeFileSync(path.resolve('./config.json'), JSON.stringify(config, null, 4));
+    database.setServer(config);
 
     interaction.reply(`Set required permission level to \`${perm.toUpperCase()}\``);
 }

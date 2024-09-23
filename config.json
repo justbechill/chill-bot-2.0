@@ -1,0 +1,52 @@
+{
+    "1024834642248994887": {
+        "messageChannel": null,
+        "countingChannel": null,
+        "currentNumber": null,
+        "lastNumber": null,
+        "requiredPermLevel": null,
+        "requiredPermBitflag": null,
+        "id": "1024834642248994887",
+        "logChannel": null
+    },
+    "1252472270115311687": {
+        "messageChannel": null,
+        "countingChannel": null,
+        "currentNumber": null,
+        "lastNumber": null,
+        "requiredPermLevel": null,
+        "requiredPermBitflag": null,
+        "id": "1252472270115311687",
+        "logChannel": null
+    },
+    "708891635961954358": {
+        "messageChannel": null,
+        "countingChannel": null,
+        "currentNumber": null,
+        "lastNumber": null,
+        "requiredPermLevel": null,
+        "requiredPermBitflag": null,
+        "id": "708891635961954358",
+        "logChannel": null
+    },
+    "775797660488564757": {
+        "messageChannel": null,
+        "countingChannel": null,
+        "currentNumber": null,
+        "lastNumber": null,
+        "requiredPermLevel": null,
+        "requiredPermBitflag": null,
+        "id": "775797660488564757",
+        "logChannel": null
+    },
+    "824101797160419348": {
+        "messageChannel": "824101797160419351",
+        "countingChannel": "937929319253168218",
+        "currentNumber": 1,
+        "lastNumber": 0,
+        "requiredPermLevel": "everyone",
+        "requiredPermBitflag": "SendMessages",
+        "id": "824101797160419348",
+        "logChannel": null
+    }
+}

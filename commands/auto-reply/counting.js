@@ -44,7 +44,7 @@ module.exports = {
                     }
                 }
             }
-            console.log(config.currentNumber)
+            
             config.lastCounter = message.author.id;
             database.setServer(config);
         }
