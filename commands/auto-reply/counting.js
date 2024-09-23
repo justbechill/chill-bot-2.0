@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const Discord = require('discord.js');
 const fs = require('fs');
+const database = require('../../database');
 
 module.exports = {
     data: {
@@ -10,33 +11,31 @@ module.exports = {
     },
 
     async execute(client, message) {
-        const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
-        if(!config[message.guild.id] || !config[message.guild.id].channels.counting) return;
+        const config = await database.getServer(message.guild.id);
 
-        let count = config[message.guild.id].count;
-        const channel = message.guild.channels.cache.get(config[message.guild.id].channels.counting);
+        if(!config || !config.countingChannel) return;
+
+        const channel = message.guild.channels.cache.get(config.countingChannel);
 
         if(!channel || channel.id != message.channel.id) return;
-
-        if(!count.num) count.num = 0;
+        if(!config.currentNumber) config.currentNumber = 0;
 
         if(!isNaN(parseInt(message.content))) {
-            if(parseInt(message.content) == count.num + 1) {
-
-                if(count.last == message.author.id) {
+            if(parseInt(message.content) == config.currentNumber + 1) {
+                if(config.lastCounter == message.author.id) {
                     await message.channel.send(`You can't count twice in a row idiot.`);
                 } else {
-                    count.num++;
+                    config.currentNumber++;
 
                     message.react('✅');
                 }
             } else {
 
-                if(count.last == message.author.id) {
+                if(config.lastCounter == message.author.id) {
                     await message.channel.send(`You can't count twice in a row idiot.`);
                 } else {
-                    count.num = 0;
+                    config.currentNumber = 0;
     
                     message.react('❌');
     
@@ -45,10 +44,9 @@ module.exports = {
                     }
                 }
             }
-
-            count.last = message.author.id;
-            config[message.guild.id].count = count;
-            fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
+            console.log(config.currentNumber)
+            config.lastCounter = message.author.id;
+            database.setServer(config);
         }
 
 

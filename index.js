@@ -1,6 +1,7 @@
 //Require packages
 require('dotenv').config();
 
+const database = require('./database');
 const { Client, Events, GatewayIntentBits, Collection, REST, Routes, ActivityType } = require('discord.js');
 const fs = require('node:fs');
 const path = require('node:path');
@@ -20,20 +21,6 @@ const activities = [
     { text: "Elden Ring", type: ActivityType.Playing },
 ];
 
-
-//Base options for server config, used when a new server is added
-const baseServerConfig = {
-    channels: {
-        transcript: null,
-        log: null,
-        message: null,
-        counting: null
-    },
-    commands: {},
-    count: {},
-    permissions: {}
-}
-
 //Message sent when bot joins a server
 const serverJoinMessage = "**Thanks for inviting Chill Bot to your server!**\n\n__*A few things you might want to know:*__\n1. To enable features like counting and logs you need to use `/config channel`.  \n2. By default, only Admins are allowed to configure the bot settings. You can change this with `/config permissions`.\n3. Some commands are inside jokes or maybe even just annoying, so you can enable or disable any command with `/config command`.\n4. The voice recognition can be pretty inaccurate sometimes. If you're having problems triggering commands, you can use `/suggest` to notify JustBeChill.\n5. If you need help or have any questions, you can message `justbechill` to ask about it.\n\n**That's all! Enjoy Chill Bot!**";
 
@@ -48,7 +35,6 @@ client.once(Events.ClientReady, c => {
     //Create connections object
     client.connections = {};
 
-    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
     console.log(`\x1b[32mLOADING SERVERS\x1b[0m`);
 
     let count = 0;
@@ -56,19 +42,12 @@ client.once(Events.ClientReady, c => {
     //Load servers and check that config is updated
     client.guilds.cache.forEach( guild => {
         if(!config[guild.id]) {
-            config[guild.id] = baseServerConfig;
+            database.addServer(guild.id);
         }
-
-        Object.keys(baseServerConfig).forEach(key => {
-            if(!config[guild.id][key]) {
-                config[guild.id][key] = baseServerConfig[key];
-            }
-        });
     
         count++;
     });
-    
-    fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
+
     console.log(`Loaded ${count} servers\n`)
 
 
@@ -129,11 +108,6 @@ for(const folder of commandFolders) {
     console.log(`Loaded ${commandsLoaded} commands\n`)
 }
 
-const database = require('./database');
-(async () => {
-    await database.connect();
-})();
-
 
 //Loading slash commands
 const rest = new REST().setToken(process.env.TOKEN);
@@ -152,13 +126,10 @@ const rest = new REST().setToken(process.env.TOKEN);
 
 //When bot joins a server
 client.on(Events.GuildCreate, guild => {
-    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
     if(!config[guild.id]) {
-        config[guild.id] = baseServerConfig;
+        database.addServer(guild.id);
     }
-
-    fs.writeFileSync('./config.json', JSON.stringify(config, null, 4));
 
     let channel = null;
 
@@ -170,7 +141,7 @@ client.on(Events.GuildCreate, guild => {
     });
 
     if(channel) channel.send(serverJoinMessage);
-    console.log(`Joined ${guild.name}`)
+    console.log(`Joined ${guild.name} | ${guild.id}`);
 });
 
 //When slash command is used
@@ -202,9 +173,7 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.MessageCreate, async message => {
     if(message.author.bot) return;
 
-    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-
-    if(config[message.guild.id] && config[message.guild.id].channels.counting) {
+    if(config[message.guild.id] && config[message.guild.id].countingChannel) {
         client.commands.get('counting').execute(client, message);
     }
 
@@ -232,37 +201,6 @@ client.on(Events.MessageCreate, async message => {
     }
 });
 
-//When speech is detected
-//FOR VOICE COMMANDS
-/* client.on(SpeechEvents.speech, (message) => {
-    if(!message.content || message.author.bot) return;
-
-    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
-
-    if(config[message.guild.id] && config[message.guild.id].channels.transcript) {
-        const channel = message.guild.channels.cache.get(config[message.guild.id].channels.transcript);
-
-        if(channel) channel.send(`**${message.member.displayName}**: ${message.content}`);
-    }
-
-    //If message is a command
-    client.commands.forEach(command => {
-        if(command.folder == 'voice') {
-
-            //check if one of terms is in message
-            for(const term of command.data.terms) {
-
-                //run command
-                if(message.content.toLowerCase().includes(term)) {
-                    if(!commandIsEnabled(message.guild, command.data.name)) return;
-
-                    command.execute(client, message, term);
-                }
-            }
-        }
-    });
-}); */
-
 /**
  * Updates the status to a random element of collection `activities`
  */
@@ -279,14 +217,22 @@ function changeStatus() {
  * @returns true if the command is enabled or not specified, false if the command is disabled.
  */
 function commandIsEnabled(guild, command) {
-    const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
+    /* const config = JSON.parse(fs.readFileSync('./config.json', 'utf8'));
 
     if(!config[guild.id]) return false;
 
     if(config[guild.id].commands[command] == undefined || config[guild.id].commands[command] == true) return true;
 
-    return false;
+    return false; */
+
+    return true;
 }
+
+let config;
+(async () => {
+    await database.connect();
+    config = await database.getConfig();
+})();
 
 //Log in with token, keep at end of file
 client.login(process.env.TOKEN)
