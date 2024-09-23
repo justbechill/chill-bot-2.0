@@ -1,0 +1,18 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "justbechill.it",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "chillbot",
+            "database": "chillbot",
+            "username": "kyle",
+            "password": "kaitgm32"
+        }
+    ]
+}

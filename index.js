@@ -116,7 +116,6 @@ for(const folder of commandFolders) {
         //Add command to collection if it has method and data
         if ('data' in command) {
             client.commands.set(command.data.name, command)
-            console.log(command.data.name)
 
             //Add command to slashCommands if it is a slash command
             if(folder == 'slash') slashCommands.push(command.data.toJSON());
@@ -129,6 +128,11 @@ for(const folder of commandFolders) {
 
     console.log(`Loaded ${commandsLoaded} commands\n`)
 }
+
+const database = require('./database');
+(async () => {
+    await database.connect();
+})();
 
 
 //Loading slash commands
