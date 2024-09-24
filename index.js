@@ -156,8 +156,9 @@ client.on(Events.InteractionCreate, async interaction => {
         return;
     }
 
+    let log;
     try {
-		await command.execute(client, interaction);
+		log = await command.execute(client, interaction);
 	} catch (error) {
 		console.error(error);
 		if (interaction.replied || interaction.deferred) {
@@ -166,6 +167,14 @@ client.on(Events.InteractionCreate, async interaction => {
 			await interaction.reply({ content: 'There was an error while executing this command!', ephemeral: true });
 		}
 	}
+
+    //SEND LOGGING MESSAGE
+    if(log) {
+        const logChannel = client.channels.cache.get(config[interaction.guild.id].logChannel);
+        if(logChannel) {
+            logChannel.send(log)
+        }
+    }
 });
 
 //When message is sent
