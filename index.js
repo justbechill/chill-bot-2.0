@@ -30,23 +30,22 @@ const client = new Client({ intents: [GatewayIntentBits.AutoModerationConfigurat
 //========================
 //RUNS WHEN BOT IS READY
 //========================
-client.once(Events.ClientReady, c => {
-
-    //Create connections object
-    client.connections = {};
+client.once(Events.ClientReady, async c => {
+    
+    //CONNECT TO MARIADB
 
     console.log(`\x1b[32mLOADING SERVERS\x1b[0m`);
 
     let count = 0;
 
     //Load servers and check that config is updated
-    client.guilds.cache.forEach( guild => {
+    /* client.guilds.cache.forEach( guild => {
         if(!config[guild.id]) {
             database.addServer(guild.id);
         }
     
         count++;
-    });
+    }); */
 
     console.log(`Loaded ${count} servers\n`)
 
@@ -122,6 +121,13 @@ const rest = new REST().setToken(process.env.TOKEN);
     } catch(error) {
         console.error(error)
     }
+    
+    try {
+        await database.connect();
+
+    } catch(error) {
+        console.error('Error connecting to database: ' + error)
+    }
 })();
 
 //When bot joins a server
@@ -146,6 +152,7 @@ client.on(Events.GuildCreate, guild => {
 
 //When slash command is used
 client.on(Events.InteractionCreate, async interaction => {
+
     if(!interaction.isChatInputCommand()) return;
 
     const command = client.commands.get(interaction.commandName);
@@ -170,9 +177,11 @@ client.on(Events.InteractionCreate, async interaction => {
 
     //SEND LOGGING MESSAGE
     if(log) {
-        const logChannel = client.channels.cache.get(config[interaction.guild.id].logChannel);
-        if(logChannel) {
-            logChannel.send(log)
+        if(config[interaction.guild.id].logChannel) {
+            const logChannel = client.channels.cache.get(config[interaction.guild.id].logChannel);
+            if(logChannel) {
+                logChannel.send("Hey bestie! I just did something! Here's the log: \n" + log)
+            }
         }
     }
 });
@@ -234,12 +243,6 @@ function commandIsEnabled(guild, command) {
 
     return true;
 }
-
-let config;
-(async () => {
-    await database.connect();
-    config = await database.getConfig();
-})();
 
 //Log in with token, keep at end of file
 client.login(process.env.TOKEN)

@@ -13,6 +13,20 @@
             "database": "chillbot",
             "username": "kyle",
             "password": "kaitgm32"
+        },
+        {
+            "mysqlOptions": {
+                "authProtocol": "default",
+                "enableSsl": "Disabled"
+            },
+            "previewLimit": 50,
+            "server": "justbechill.it",
+            "port": 3306,
+            "driver": "MariaDB",
+            "name": "Chill Bot",
+            "database": "chillbot",
+            "username": "kyle",
+            "password": "kaitgm32"
         }
     ]
 }
